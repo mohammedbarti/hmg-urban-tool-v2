@@ -1,90 +1,100 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
+import logo from '../public/logo.png';
 
 const Page = () => {
   const [population, setPopulation] = useState('');
   const [area, setArea] = useState('');
-  const [density, setDensity] = useState('');
-  const [growth, setGrowth] = useState('Stable');
-  const [setting, setSetting] = useState('Urban');
   const [walkability, setWalkability] = useState('');
-  const [regularAccess, setRegularAccess] = useState('');
-  const [childrenPct, setChildrenPct] = useState('');
-  const [elderlyPct, setElderlyPct] = useState('');
-  const [womenPct, setWomenPct] = useState('');
+  const [percentAccess, setPercentAccess] = useState('');
+  const [elderlyPercent, setElderlyPercent] = useState('');
+  const [femalePercent, setFemalePercent] = useState('');
+  const [childrenPercent, setChildrenPercent] = useState('');
+  const [density, setDensity] = useState('Low');
+  const [growthStatus, setGrowthStatus] = useState('Stable');
+  const [settingType, setSettingType] = useState('Urban');
   const [result, setResult] = useState(null);
 
-  const calculate = () => {
+  const handleClick = () => {
     const pop = parseInt(population);
-    const areaVal = parseFloat(area);
-    const access = parseFloat(regularAccess) || 0;
-
-    const primaryCenters = Math.ceil(pop / 10000);
+    const km2 = parseFloat(area);
+    const mobileUnits = Math.ceil(km2 / 10);
+    const accessPop = Math.ceil((pop * parseInt(percentAccess || '0')) / 100);
+    const phcs = Math.ceil(pop / 10000);
     const emergencyPods = Math.ceil(pop / 5000);
-    const telehealth = Math.ceil((pop * (access / 100)) / 15000);
-    const mobileClinics = Math.ceil(areaVal / 10);
-    const ambulances = setting === 'Urban' ? Math.ceil(areaVal / 4) : Math.ceil(areaVal / 2);
+    const telehealthBooths = Math.ceil(pop / 25000);
+    const ambulances = settingType === 'Urban' ? Math.ceil(km2 / 2) : Math.ceil(km2 / 1);
 
     setResult({
-      primaryCenters,
+      phcs,
       emergencyPods,
-      telehealth,
-      mobileClinics,
-      ambulances
+      telehealthBooths,
+      mobileUnits,
+      ambulances,
     });
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <img src="/logo.png" alt="Logo" style={{ position: 'absolute', top: 10, left: 10, height: 40 }} />
-      <h1>HMG Urban Planning Tool</h1>
-      <p>Enter basic community info to get infrastructure recommendations.</p>
+    <div style={{ fontFamily: 'Arial, sans-serif', padding: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Image src={logo} alt="Logo" width={140} height={50} />
+      </div>
+      <h1 style={{ textAlign: 'center' }}>HMG Urban Planning Tool</h1>
+      <p style={{ textAlign: 'center' }}>
+        Enter basic community info to get infrastructure recommendations.
+      </p>
 
-      <div>
-        <input placeholder="Population" value={population} onChange={e => setPopulation(e.target.value)} /><br />
-        <input placeholder="Area (km²)" value={area} onChange={e => setArea(e.target.value)} /><br />
-        <input placeholder="Walkability Radius (m)" value={walkability} onChange={e => setWalkability(e.target.value)} /><br />
-        <input placeholder="% Population Requiring Regular Access" value={regularAccess} onChange={e => setRegularAccess(e.target.value)} /><br />
-        <input placeholder="% Children" value={childrenPct} onChange={e => setChildrenPct(e.target.value)} /><br />
-        <input placeholder="% Elderly" value={elderlyPct} onChange={e => setElderlyPct(e.target.value)} /><br />
-        <input placeholder="% Women" value={womenPct} onChange={e => setWomenPct(e.target.value)} /><br />
+      <div style={{ maxWidth: '400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <label>Population:<input type="number" value={population} onChange={(e) => setPopulation(e.target.value)} /></label>
+        <label>Area (km²):<input type="number" value={area} onChange={(e) => setArea(e.target.value)} /></label>
+        <label>Walkability Distance (m):<input type="number" value={walkability} onChange={(e) => setWalkability(e.target.value)} /></label>
+        <label>% Requiring Regular Access:<input type="number" value={percentAccess} onChange={(e) => setPercentAccess(e.target.value)} /></label>
+        <label>% Elderly:<input type="number" value={elderlyPercent} onChange={(e) => setElderlyPercent(e.target.value)} /></label>
+        <label>% Female:<input type="number" value={femalePercent} onChange={(e) => setFemalePercent(e.target.value)} /></label>
+        <label>% Children:<input type="number" value={childrenPercent} onChange={(e) => setChildrenPercent(e.target.value)} /></label>
 
-        <select value={density} onChange={e => setDensity(e.target.value)}>
-          <option value="">Select Density</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select><br />
+        <label>Density:
+          <select value={density} onChange={(e) => setDensity(e.target.value)}>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </label>
 
-        <select value={growth} onChange={e => setGrowth(e.target.value)}>
-          <option value="Stable">Stable</option>
-          <option value="Growing">Growing</option>
-          <option value="Declining">Declining</option>
-        </select><br />
+        <label>Growth Status:
+          <select value={growthStatus} onChange={(e) => setGrowthStatus(e.target.value)}>
+            <option value="Growing">Growing</option>
+            <option value="Stable">Stable</option>
+            <option value="Declining">Declining</option>
+          </select>
+        </label>
 
-        <select value={setting} onChange={e => setSetting(e.target.value)}>
-          <option value="Urban">Urban</option>
-          <option value="Rural">Rural</option>
-        </select><br /><br />
+        <label>Setting Type:
+          <select value={settingType} onChange={(e) => setSettingType(e.target.value)}>
+            <option value="Urban">Urban</option>
+            <option value="Rural">Rural</option>
+          </select>
+        </label>
 
-        <button onClick={calculate}>Generate Recommendations</button>
+        <button onClick={handleClick}>Generate Recommendations</button>
       </div>
 
       {result && (
-        <div style={{ textAlign: 'left', maxWidth: 600, margin: '40px auto' }}>
+        <div style={{ marginTop: '40px', textAlign: 'center' }}>
           <h2>Recommendations:</h2>
-          <ul>
-            <li><strong>{result.primaryCenters} Primary Healthcare Centers</strong> — Based on 1 per 10,000 people</li>
+          <ul style={{ listStyle: 'disc', textAlign: 'left', display: 'inline-block' }}>
+            <li><strong>{result.phcs} Primary Healthcare Centers</strong> — Based on 1 per 10,000 people</li>
             <li><strong>{result.emergencyPods} Emergency Pods</strong> — For high-density and quick-access needs</li>
-            <li><strong>{result.telehealth} Telehealth Booths</strong> — For digitally connected underserved zones</li>
-            <li><strong>{result.mobileClinics} Mobile Clinics</strong> — One per 10 km² coverage</li>
+            <li><strong>{result.telehealthBooths} Telehealth Booths</strong> — For digitally connected underserved zones</li>
+            <li><strong>{result.mobileUnits} Mobile Clinics</strong> — One per 10 km² coverage</li>
             <li><strong>{result.ambulances} Ambulance Units</strong> — Based on urban/rural density ratio</li>
           </ul>
         </div>
       )}
 
-      <footer style={{ position: 'fixed', bottom: 10, right: 10, fontSize: '12px' }}>
+      <footer style={{ marginTop: '50px', textAlign: 'right', fontSize: 'small' }}>
         Made by: Dr. Mohammed alBarti – Corporate Business Development
       </footer>
     </div>
